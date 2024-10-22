@@ -127,6 +127,6 @@ document.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-  const currentIndex = window.localStorage.getItem("currentIndex") || 0;
-  updateFields(permutations[currentIndex]);
+  const currentIndex = window.localStorage.getItem("currentIndex");
+  if (currentIndex !== null) updateFields(permutations[currentIndex]);
 });
