@@ -47,13 +47,7 @@ function fitAll(els) {
     el.style.fontSize = `${newFontSize}px`;
   }
 
-  if (els.length) {
-    for (const el of els) {
-      fit(el);
-    }
-  } else {
-    fit(els);
-  }
+  for (const el of els) fit(el);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
