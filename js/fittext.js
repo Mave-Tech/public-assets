@@ -32,6 +32,7 @@ function fitAll(els) {
       el.innerText,
       getComputedStyle(el)
     );
+
     const widthRatio = containerWidth / textDimensions.width;
     const currentFontSize = parseFloat(getComputedStyle(el).fontSize);
     const maxFontSize = parseFloat(
@@ -50,6 +51,6 @@ function fitAll(els) {
   for (const el of els) fit(el);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
   fitAll(document.querySelectorAll(".fittext"));
 });
