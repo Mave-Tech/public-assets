@@ -102,21 +102,7 @@ function updateFields(permutation) {
 // Keybinds
 document.addEventListener("keydown", (e) => {
   const currentIndex = Number(window.localStorage.getItem("currentIndex")) || 0;
-  if (e.key === "ArrowRight") {
-    e.preventDefault();
-    window.localStorage.setItem(
-      "currentIndex",
-      (currentIndex + 1) % permutations.length
-    );
-    window.location.reload();
-  } else if (e.key === "ArrowLeft") {
-    e.preventDefault();
-    window.localStorage.setItem(
-      "currentIndex",
-      (currentIndex - 1 + permutations.length) % permutations.length
-    );
-    window.location.reload();
-  } else if (e.key === " ") {
+  if (e.key === " ") {
     e.preventDefault();
     window.localStorage.setItem(
       "currentIndex",
