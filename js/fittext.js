@@ -25,7 +25,6 @@ function getTextDimensions(text, styles) {
 
 function fitAll(els) {
   function fit(el) {
-    el.style.fontSize = "";
     const containerWidth = el.clientWidth;
     const containerHeight = el.clientHeight;
     const textDimensions = getTextDimensions(
@@ -52,5 +51,6 @@ function fitAll(els) {
 }
 
 window.addEventListener("load", () => {
-  fitAll(document.querySelectorAll(".fittext"));
+  for (i = 0; i < 3; i++) fitAll(document.querySelectorAll(".fittext"));
+  window.FITTEXT_COMPLETED = true;
 });
