@@ -1,0 +1,51 @@
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamBook.ttf) format("ttf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamBookItalic.ttf) format("ttf");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamLight.ttf) format("ttf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamLightItalic.ttf) format("ttf");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamMedium.ttf) format("ttf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamMediumItalic.ttf) format("ttf");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamBold.ttf) format("ttf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url(./Gotham/GothamBoldItalic.ttf) format("ttf");
+  font-weight: 700;
+  font-style: italic;
+}
