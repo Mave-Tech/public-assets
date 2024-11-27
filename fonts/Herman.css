@@ -4,7 +4,8 @@
 
 
 @font-face {
-    font-family: "Herman";
-    src: url("https://mave-public.s3.amazonaws.com/public/fonts/Hermann-Bold.ttf");
+    font-family: "Hermann-Bold";
+    src: url("./Hermann-Bold.ttf");
     font-weight: bold;
+    font-style: normal;
 }
