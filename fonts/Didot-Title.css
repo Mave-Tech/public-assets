@@ -1,6 +1,20 @@
 @font-face {
   font-family: "Didot Title";
-  src: url("./Didot Title.otf") format("opentype");
+  src: url("./Didot Title/Didot-01.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
+}
+
+@font-face {
+  font-family: "Didot Title";
+  src: url("./Didot Title/Didot-Italic-02.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Didot Title";
+  src: url("./Didot Title/Didot-Bold-03.ttf") format("truetype");
+  font-weight: 700;
+  font-style: bold;
 }
