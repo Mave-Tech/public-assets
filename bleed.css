@@ -18,28 +18,28 @@
   border: solid black;
   z-index: -1;
 
-  &.top {
+  &.crop-marks-top {
     top: calc(-1 * (var(--bleed) + var(--margin)));
     height: var(--margin);
     left: 0;
     right: 0;
     border-width: 0 1px;
   }
-  &.bottom {
+  &.crop-marks-bottom {
     bottom: calc(-1 * (var(--bleed) + var(--margin)));
     height: var(--margin);
     left: 0;
     right: 0;
     border-width: 0 1px;
   }
-  &.left {
+  &.crop-marks-left {
     top: 0;
     bottom: 0;
     left: calc(-1 * (var(--bleed) + var(--margin)));
     width: var(--margin);
     border-width: 1px 0;
   }
-  &.right {
+  &.crop-marks-right {
     top: 0;
     bottom: 0;
     right: calc(-1 * (var(--bleed) + var(--margin)));
