@@ -1,0 +1,118 @@
+.wrapper {
+  --margin: 0.125in;
+  --bleed: 0.125in;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  padding: var(--margin);
+  gap: var(--margin);
+}
+.page {
+  position: relative;
+  isolation: isolate;
+  margin: var(--bleed);
+}
+
+.crop-marks {
+  position: absolute;
+  border: solid black;
+  z-index: -1;
+
+  &.top {
+    top: calc(-1 * (var(--bleed) + var(--margin)));
+    height: var(--margin);
+    left: 0;
+    right: 0;
+    border-width: 0 1px;
+  }
+  &.bottom {
+    bottom: calc(-1 * (var(--bleed) + var(--margin)));
+    height: var(--margin);
+    left: 0;
+    right: 0;
+    border-width: 0 1px;
+  }
+  &.left {
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * (var(--bleed) + var(--margin)));
+    width: var(--margin);
+    border-width: 1px 0;
+  }
+  &.right {
+    top: 0;
+    bottom: 0;
+    right: calc(-1 * (var(--bleed) + var(--margin)));
+    width: var(--margin);
+    border-width: 1px 0;
+  }
+}
+
+/* Using pseudo-elements to create the bleed effect */
+.bleed-top,
+.bleed-left,
+.bleed-right,
+.bleed-bottom {
+  position: relative;
+  isolation: isolate;
+}
+.bleed-top::before,
+.bleed-left::before,
+.bleed-right::before,
+.bleed-bottom::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: inherit;
+}
+.bleed-top::before {
+  margin-top: calc(-1 * var(--bleed));
+  padding-top: var(--bleed);
+}
+.bleed-left::before {
+  margin-left: calc(-1 * var(--bleed));
+  padding-left: var(--bleed);
+}
+.bleed-right::before {
+  margin-right: calc(-1 * var(--bleed));
+  padding-right: var(--bleed);
+}
+.bleed-bottom::before {
+  margin-bottom: calc(-1 * var(--bleed));
+  padding-bottom: var(--bleed);
+}
+
+/* Margin/padding on element itself */
+.bleed-self {
+  &::before {
+    content: none;
+  }
+  &.bleed-top {
+    margin-top: calc(-1 * var(--margin));
+    padding-top: var(--margin);
+  }
+  &.bleed-left {
+    margin-left: calc(-1 * var(--margin));
+    padding-left: var(--margin);
+  }
+  &.bleed-right {
+    margin-right: calc(-1 * var(--margin));
+    padding-right: var(--margin);
+  }
+  &.bleed-bottom {
+    margin-bottom: calc(-1 * var(--margin));
+    padding-bottom: var(--margin);
+  }
+}
+
+/* If the element is absolutely positioned, we need to adjust the bleed */
+.bleed-absolute {
+  &::before {
+    content: none;
+  }
+  &.bleed-left.bleed-right {
+    width: calc(100% + 2 * var(--margin));
+    left: calc(-1 * var(--margin));
+  }
+}
