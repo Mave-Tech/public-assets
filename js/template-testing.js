@@ -11,34 +11,6 @@ function replaceBackgroundImageUrl(style, url) {
 window.addEventListener("load", () => {
   document.querySelectorAll("[data-field]").forEach((el) => {
     if (["background-image", "image"].includes(el.dataset.type)) {
-      // Handle click
-      el.addEventListener("click", () => {
-        // Only proceed if no modifier keys are pressed
-        if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
-          return;
-        }
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-
-        input.onchange = (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              if (el.tagName === "IMG") {
-                el.src = e.target.result;
-              } else {
-                el.style.backgroundImage = `url('${e.target.result}')`;
-              }
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-
-        input.click();
-      });
-
       // Handle drag and drop
       el.addEventListener("dragover", (e) => {
         e.preventDefault();
