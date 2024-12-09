@@ -101,69 +101,6 @@ window.addEventListener("load", () => {
           console.error("Error swapping images:", err);
         }
       });
-
-      // Handle shifting
-      let isDragging = false;
-      let startX, startY;
-      el.addEventListener("mousedown", (e) => {
-        if (e.shiftKey) {
-          isDragging = true;
-          startX = e.clientX;
-          startY = e.clientY;
-          e.preventDefault();
-        }
-      });
-      el.addEventListener("mousemove", (e) => {
-        if (isDragging && e.shiftKey) {
-          const deltaX = e.clientX - startX;
-          const deltaY = e.clientY - startY;
-
-          const currentX =
-            el.style.backgroundPositionX === ""
-              ? 50
-              : parseFloat(el.style.backgroundPositionX);
-          const currentY =
-            el.style.backgroundPositionY === ""
-              ? 50
-              : parseFloat(el.style.backgroundPositionY);
-
-          const newX = Math.max(0, Math.min(100, currentX - deltaX / 5));
-          const newY = Math.max(0, Math.min(100, currentY - deltaY / 5));
-
-          el.style.backgroundPositionX = `${newX}%`;
-          el.style.backgroundPositionY = `${newY}%`;
-
-          startX = e.clientX;
-          startY = e.clientY;
-        }
-      });
-      el.addEventListener("mouseup", () => {
-        isDragging = false;
-      });
-
-      // Handle scrolling (brightness)
-      el.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const delta = e.deltaY;
-        const brightnessStep = 0.05;
-
-        // Adjust brightness
-        const currentDarken =
-          parseFloat(el.style.getPropertyValue("--darken")) || 0;
-        const newDarken = Math.max(
-          0,
-          Math.min(
-            100,
-            currentDarken +
-              (delta > 0 ? brightnessStep * 100 : -brightnessStep * 100)
-          )
-        );
-        el.style.setProperty("--darken", `${newDarken}`);
-        const url = backgroundImageUrl(el.style.backgroundImage);
-        el.style.backgroundImage = `linear-gradient(rgba(0,0,0,${
-          newDarken / 100
-        }), rgba(0,0,0,${newDarken / 100})), url('${url}')`;
-      });
     } else {
       el.contentEditable = true;
       el.addEventListener("input", () => {
