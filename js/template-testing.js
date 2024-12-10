@@ -20,12 +20,12 @@ window.addEventListener("load", () => {
       el.addEventListener("dragleave", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        el.style.filter = "brightness(1)";
+        el.style.filter = "";
       });
       el.addEventListener("drop", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        el.style.filter = "brightness(1)";
+        el.style.filter = "";
 
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith("image/")) {
@@ -57,7 +57,7 @@ window.addEventListener("load", () => {
       el.addEventListener("drop", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        el.style.filter = "brightness(1)";
+        el.style.filter = "";
 
         try {
           const sourceData = JSON.parse(e.dataTransfer.getData("text/plain"));
