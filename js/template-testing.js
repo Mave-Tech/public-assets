@@ -122,7 +122,7 @@ window.addEventListener("load", () => {
 
         // Fit text
         if (el.classList.contains("fittext")) {
-          fitAll([el]);
+          for (let i = 0; i < 3; i++) fitAll([el]);
         }
       });
     }
