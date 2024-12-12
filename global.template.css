@@ -16,6 +16,7 @@
   .wrapper {
     width: 1080px;
     position: relative;
+    isolation: isolate;
   }
   .wrapper:has(> .page) {
     width: auto;
