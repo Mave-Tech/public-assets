@@ -48,7 +48,7 @@
     width: 8.5in;
     height: 11in;
   }
-  .landscape-page {
+  .page.orientation-landscape {
     width: 11in;
     height: 8.5in;
   }
