@@ -48,6 +48,11 @@
     width: 8.5in;
     height: 11in;
   }
+  .landscape-page {
+    width: 11in;
+    height: 8.5in;
+  }
+
   /* Image Types */
   .img {
     background-size: cover;
