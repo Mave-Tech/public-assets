@@ -120,7 +120,8 @@
 /* Remove unnecessary bleeds in spreads */
 .spread > .page:first-child {
   .bleed-right::before {
-    content: none;
+    margin-right: 0;
+    padding-right: 0;
   }
   .bleed-self.bleed-right {
     margin-right: 0;
@@ -132,7 +133,8 @@
 }
 .spread > .page:last-child {
   .bleed-left::before {
-    content: none;
+    margin-left: 0;
+    padding-left: 0;
   }
   .bleed-self.bleed-left {
     margin-left: 0;
