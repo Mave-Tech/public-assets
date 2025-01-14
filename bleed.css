@@ -116,3 +116,30 @@
     left: calc(-1 * var(--margin));
   }
 }
+
+/* Remove unnecessary bleeds in spreads */
+.spread > .page:first-child {
+  .bleed-right {
+    content: none;
+  }
+  .bleed-self.bleed-right {
+    margin-right: 0;
+    padding-right: 0;
+  }
+  .bleed-absolute.bleed-left.bleed-right {
+    width: calc(100% + var(--margin));
+  }
+}
+.spread > .page:last-child {
+  .bleed-left {
+    content: none;
+  }
+  .bleed-self.bleed-left {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .bleed-absolute.bleed-left.bleed-right {
+    width: calc(100% + var(--margin));
+    left: 0;
+  }
+}
