@@ -119,7 +119,7 @@
 
 /* Remove unnecessary bleeds in spreads */
 .spread > .page:first-child {
-  .bleed-right {
+  .bleed-right::before {
     content: none;
   }
   .bleed-self.bleed-right {
@@ -131,7 +131,7 @@
   }
 }
 .spread > .page:last-child {
-  .bleed-left {
+  .bleed-left::before {
     content: none;
   }
   .bleed-self.bleed-left {
