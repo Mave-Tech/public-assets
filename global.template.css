@@ -43,6 +43,9 @@
   .landscape {
     aspect-ratio: 16 / 9;
   }
+  .post-rectangle{
+    aspect-ratio: 4 / 5;
+  }
   .page {
     page-break-after: always;
     width: 8.5in;
