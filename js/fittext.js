@@ -3,6 +3,36 @@
  * To use it, add the class "fittext" to the element you want to fit.
  */
 
+// Helper function to transform text based on CSS text-transform
+function transformText(text, styles) {
+  const transform = styles.textTransform;
+  if (transform === 'uppercase') return text.toUpperCase();
+  if (transform === 'lowercase') return text.toLowerCase();
+  if (transform === 'capitalize') {
+    return text.replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return text;
+}
+
+// Helper function to measure text with given styles
+function measureText(context, text, styles) {
+  context.font = styles.font;
+  if (styles.letterSpacing !== 'normal') {
+    context.letterSpacing = styles.letterSpacing;
+  }
+
+  const metrics = context.measureText(text);
+  const letterSpacing = parseFloat(styles.letterSpacing) || 0;
+  const letterCount = text.length - 1;
+  const spacingWidth = letterCount * letterSpacing;
+
+  return {
+    width: metrics.width + spacingWidth,
+    height:
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
+  };
+}
+
 function getTextDimensions(element, styles) {
   // re-use canvas object for better performance
   const canvas =
@@ -10,107 +40,41 @@ function getTextDimensions(element, styles) {
     (getTextDimensions.canvas = document.createElement("canvas"));
 
   const context = canvas.getContext("2d");
-  window.context = context;
 
-  // If it's an md-block or has nested elements
-  const paragraph = element.querySelector('p');
-  if (paragraph) {
-    let totalWidth = 0;
-    let maxHeight = 0;
-    const nodes = Array.from(paragraph.childNodes);
+  // Process all nodes and total their dimensions 
+  function processNode(node, parentStyles) {
+    const nodeStyles = node.nodeType === Node.ELEMENT_NODE ? window.getComputedStyle(node) : parentStyles;
 
-    // Measure each node with its proper styling
-    nodes.forEach((node, index) => {
-      let nodeText = node.textContent.replace(/\s+/g, ' ').trim();
+    const children = node.hasChildNodes() ? Array.from(node.childNodes).filter((child) => child.nodeType !== Node.COMMENT_NODE) : [node];
 
-      let textTransform;
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const nodeStyles = window.getComputedStyle(node);
-        textTransform = nodeStyles.textTransform;
-      } else {
-        // Parent style for text nodes
-        textTransform = styles.textTransform; 
-      }
+    // Process each child node
+    return children.reduce(
+      (acc, child) => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const text = child.textContent.trim();
+          if (!text) return acc;
+          
+          let processedText = transformText(text, nodeStyles);
+          if (child.nextSibling) processedText += ' ';
 
-      // Apply text transform
-      if (textTransform === 'uppercase') {
-        nodeText = nodeText.toUpperCase();
-      } else if (textTransform === 'lowercase') {
-        nodeText = nodeText.toLowerCase();
-      } else if (textTransform === 'capitalize') {
-        nodeText = nodeText.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-
-      // Skip empty or whitespace-only nodes
-      if (!nodeText || nodeText.trim() === '') {
-        return;
-      }
-
-      // Get the proper font style for this node
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const nodeStyles = window.getComputedStyle(node);
-        const font = `${nodeStyles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
-        context.font = font;
-
-        // Apply letter spacing if specified
-        if (nodeStyles.letterSpacing !== 'normal') {
-          context.letterSpacing = nodeStyles.letterSpacing;
+          const dimensions = measureText(context, processedText, nodeStyles);
+          return {
+            width: acc.width + dimensions.width,
+            height: Math.max(acc.height, dimensions.height)
+          }
         }
-      } else {
-        // use parent styles
-        const font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
-        context.font = font;
 
-        // Apply letter spacing if specified
-        if (styles.letterSpacing !== 'normal') {
-          context.letterSpacing = styles.letterSpacing;
+        // Element nodes
+        const childDimensions = processNode(child, nodeStyles);
+        return {
+          width: acc.width + childDimensions.width,
+          height: Math.max(acc.height, childDimensions.height)
         }
-      }
-
-      // Measure the text in this node
-      const nodeMetrics = context.measureText(nodeText);
-
-      // Add letter spacing to width calculation
-      const letterSpacing = parseFloat(styles.letterSpacing) || 0;
-      const letterCount = nodeText.length - 1;
-      const spacingWidth = letterCount * letterSpacing;
-
-      const totalNodeWidth = nodeMetrics.width + spacingWidth;
-
-      // Add word spacing between nodes (30% of font size)
-      // This compensates for browser's rendering of spaces between inline elements and text nodes. 
-      // The percentage is based on typical typographic spacing standards where word spacing is roughly 1/3 of the font size.
-      const spacing =
-        index < nodes.length - 1 ? parseFloat(styles.fontSize) * 0.3 : 0;
-      totalWidth += totalNodeWidth + spacing;
-
-      // Track maximum height from actual text
-      const nodeHeight =
-        nodeMetrics.actualBoundingBoxAscent +
-        nodeMetrics.actualBoundingBoxDescent;
-      maxHeight = Math.max(maxHeight, nodeHeight);
-    });
-
-    return {
-      width: totalWidth,
-      height: maxHeight,
-    };
+      },
+      { width: 0, height: 0 }
+    );
   }
-
-  // Otherwise, do regular text measurement
-  const elementText = element.innerText;
-
-  context.font = styles.font;
-  if (styles.letterSpacing === 'normal') context.letterSpacing = '0px';
-  else context.letterSpacing = styles.letterSpacing;
-
-  const metrics = context.measureText(elementText);
-
-  return {
-    width: metrics.width,
-    height:
-      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
-  };
+  return processNode(element, styles);
 }
 
 function fitAll(els) {
