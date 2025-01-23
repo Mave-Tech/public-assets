@@ -22,12 +22,9 @@ function measureText(context, text, styles) {
   }
 
   const metrics = context.measureText(text);
-  const letterSpacing = parseFloat(styles.letterSpacing) || 0;
-  const letterCount = text.length - 1;
-  const spacingWidth = letterCount * letterSpacing;
 
   return {
-    width: metrics.width + spacingWidth,
+    width: metrics.width,
     height:
       metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
   };
