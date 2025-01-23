@@ -108,7 +108,7 @@ function getTextDimensions(element, styles) {
     );
   }
   const x = processNode(element, styles);
-  
+
   if (window.DEBUG_DRAW) {
     context.strokeRect(0, 150 * (window.i + 1) - x.height, x.width, x.height);
   }
@@ -143,6 +143,8 @@ function fitAll(els) {
 }
 
 window.addEventListener('load', () => {
+  window.DEBUG_DRAW = new URLSearchParams(window.location.search).get('debug_draw') === 'true';
+
   for (window.i = 0; i < 3; i++) {
     window.currentWidth = 0;
     fitAll(document.querySelectorAll('.fittext'));
