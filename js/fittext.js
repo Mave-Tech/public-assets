@@ -34,15 +34,30 @@ function getTextDimensions(element, styles) {
   // re-use canvas object for better performance
   const canvas =
     getTextDimensions.canvas ||
-    (getTextDimensions.canvas = document.createElement("canvas"));
+    (getTextDimensions.canvas = document.createElement('canvas'));
 
-  const context = canvas.getContext("2d");
+  // If canvas isn't on DOM yet, append it
+  if (window.DEBUG_DRAW && !canvas.parentNode) {
+    canvas.width = 1080;
+    canvas.height = 500;
+    canvas.style.backgroundColor = 'aliceblue';
+    document.body.appendChild(canvas);
+  }
 
-  // Process all nodes and total their dimensions 
+  const context = canvas.getContext('2d');
+
+  // Process all nodes and total their dimensions
   function processNode(node, parentStyles) {
-    const nodeStyles = node.nodeType === Node.ELEMENT_NODE ? window.getComputedStyle(node) : parentStyles;
+    const nodeStyles =
+      node.nodeType === Node.ELEMENT_NODE
+        ? window.getComputedStyle(node)
+        : parentStyles;
 
-    const children = node.hasChildNodes() ? Array.from(node.childNodes).filter((child) => child.nodeType !== Node.COMMENT_NODE) : [node];
+    const children = node.hasChildNodes()
+      ? Array.from(node.childNodes).filter(
+          (child) => child.nodeType !== Node.COMMENT_NODE
+        )
+      : [node];
 
     // Process each child node
     return children.reduce(
@@ -50,50 +65,76 @@ function getTextDimensions(element, styles) {
         if (child.nodeType === Node.TEXT_NODE) {
           const text = child.textContent.trim();
           if (!text) return acc;
-          
-          let processedText = transformText(text, nodeStyles);
-          if (child.nextSibling) processedText += ' ';
 
-          const dimensions = measureText(context, processedText, nodeStyles);
+          let processedText = transformText(text, nodeStyles);
+
+          if (
+            child.nextSibling ||
+            (child.parentNode !== element && child.parentNode.nextSibling)
+          ) {
+            processedText += ' ';
+          }
+
+          const dimensions = measureText(
+            context,
+            processedText,
+            nodeStyles
+          );
+
+          // Draw the text on the canvas
+          if (window.DEBUG_DRAW) {
+            context.fillText(
+              processedText,
+              window.currentWidth,
+              150 * (window.i + 1)
+            );
+            window.currentWidth += dimensions.width;
+          }
+
           return {
             width: acc.width + dimensions.width,
-            height: Math.max(acc.height, dimensions.height)
-          }
+            height: Math.max(acc.height, dimensions.height),
+          };
         }
 
         // Element nodes
         const childDimensions = processNode(child, nodeStyles);
         return {
           width: acc.width + childDimensions.width,
-          height: Math.max(acc.height, childDimensions.height)
-        }
+          height: Math.max(acc.height, childDimensions.height),
+        };
       },
       { width: 0, height: 0 }
     );
   }
-  return processNode(element, styles);
+  const x = processNode(element, styles);
+  
+  if (window.DEBUG_DRAW) {
+    context.strokeRect(0, 150 * (window.i + 1) - x.height, x.width, x.height);
+  }
+  return x;
 }
 
 function fitAll(els) {
   function fit(el) {
     const containerWidth = el.clientWidth;
     const containerHeight = el.clientHeight;
-    const textDimensions = getTextDimensions(
-      el,
-      getComputedStyle(el)
-    );
+    const textDimensions = getTextDimensions(el, getComputedStyle(el));
 
     const widthRatio = containerWidth / textDimensions.width;
     const currentFontSize = parseFloat(getComputedStyle(el).fontSize);
     const maxFontSize = parseFloat(
-      getComputedStyle(el).getPropertyValue("--max-font-size") ||
+      getComputedStyle(el).getPropertyValue('--max-font-size') ||
         currentFontSize
     );
     const minFontSize = parseFloat(
-      getComputedStyle(el).getPropertyValue("--min-font-size") || 0
+      getComputedStyle(el).getPropertyValue('--min-font-size') || 0
     );
     const newFontSize = Math.floor(
-      Math.max(minFontSize, Math.min(currentFontSize * widthRatio, maxFontSize))
+      Math.max(
+        minFontSize,
+        Math.min(currentFontSize * widthRatio, maxFontSize)
+      )
     );
     el.style.fontSize = `${newFontSize}px`;
   }
@@ -101,7 +142,10 @@ function fitAll(els) {
   for (const el of els) fit(el);
 }
 
-window.addEventListener("load", () => {
-  for (i = 0; i < 3; i++) fitAll(document.querySelectorAll(".fittext"));
+window.addEventListener('load', () => {
+  for (window.i = 0; i < 3; i++) {
+    window.currentWidth = 0;
+    fitAll(document.querySelectorAll('.fittext'));
+  }
   window.FITTEXT_COMPLETED = true;
 });
