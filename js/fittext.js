@@ -69,8 +69,11 @@ function getTextDimensions(element, styles) {
           let processedText = transformText(text, nodeStyles);
 
           if (
-            child.nextSibling ||
-            (child.parentNode !== element && child.parentNode.nextSibling)
+            (child.nextSibling ||
+              (child.parentNode !== element &&
+                child.parentNode.nextSibling)) &&
+            (child.nextSibling?.textContent.trim() ||
+              child.parentNode.nextSibling?.textContent.trim())
           ) {
             processedText += ' ';
           }
@@ -107,12 +110,17 @@ function getTextDimensions(element, styles) {
       { width: 0, height: 0 }
     );
   }
-  const x = processNode(element, styles);
+  const nodeDimensions = processNode(element, styles);
 
   if (window.DEBUG_DRAW) {
-    context.strokeRect(0, 150 * (window.i + 1) - x.height, x.width, x.height);
+    context.strokeRect(
+      0,
+      150 * (window.i + 1) - nodeDimensions.height,
+      nodeDimensions.width,
+      nodeDimensions.height
+    );
   }
-  return x;
+  return nodeDimensions;
 }
 
 function fitAll(els) {
@@ -143,7 +151,9 @@ function fitAll(els) {
 }
 
 window.addEventListener('load', () => {
-  window.DEBUG_DRAW = new URLSearchParams(window.location.search).get('debug_draw') === 'true';
+  window.DEBUG_DRAW =
+    new URLSearchParams(window.location.search).get('debug_draw') ===
+    'true';
 
   for (window.i = 0; i < 3; i++) {
     window.currentWidth = 0;
@@ -151,3 +161,4 @@ window.addEventListener('load', () => {
   }
   window.FITTEXT_COMPLETED = true;
 });
+
