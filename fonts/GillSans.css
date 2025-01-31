@@ -1,55 +1,55 @@
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-Light.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-LightItalic.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-LightItalic.otf") format("opentype");
   font-weight: 300;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-Italic.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-Italic.otf") format("opentype");
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-Bold.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-Bold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-BoldItalic.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-BoldItalic.otf") format("opentype");
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-ExtraBold.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-ExtraBold.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Gill Sans";
-  src: url("./GillSansStd/GillSansStd-UltraBold.otf") format("otf");
+  src: url("./GillSansStd/GillSansStd-UltraBold.otf") format("opentype");
   font-weight: 900;
   font-style: normal;
 }
