@@ -132,7 +132,12 @@ window.addEventListener("load", () => {
 // Add styles for editor to the page
 const style = document.createElement("style");
 style.textContent = `
-      [contenteditable="true"]:hover {
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus,
+      [contenteditable="true"]:focus-within {
+        outline: 1px dashed;
+      }
+      md-block[contenteditable="true"]:hover > * {
         outline: 1px dashed;
       }
       [data-type="background-image"],
