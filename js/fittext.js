@@ -28,9 +28,8 @@ function transformText(text, styles) {
 // Helper function to measure text with given styles
 function measureText(context, text, styles) {
   context.font = styles.font;
-  if (styles.letterSpacing !== "normal") {
-    context.letterSpacing = styles.letterSpacing;
-  }
+  if (styles.letterSpacing === "normal") context.letterSpacing = "0px";
+  else context.letterSpacing = styles.letterSpacing;
 
   const metrics = context.measureText(text);
 
