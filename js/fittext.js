@@ -5,12 +5,18 @@
 
 function parseFontSize(fontSize) {
   if (typeof fontSize === "number") return fontSize;
-  if (fontSize.includes("rem")) {
+
+  if (fontSize.includes("var(")) {
+    const varName = fontSize.match(/var\((.*)\)/)[1];
+    fontSize = getComputedStyle(document.body).getPropertyValue(varName);
+  }
+
+  if (fontSize.includes("rem"))
     return (
       parseFloat(fontSize) *
       parseFloat(getComputedStyle(document.body).fontSize)
     );
-  }
+
   return parseFloat(fontSize);
 }
 
