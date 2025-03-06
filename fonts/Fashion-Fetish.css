@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "Fashion Fetish";
+  src: url("./Fashion Fetish/Fashion\ Fetish\ Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Fashion Fetish";
+  src: url("./Fashion Fetish/Fashion\ Fetish\ Light\ Italic.ttf")
+    format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Fashion Fetish";
+  src: url("./Fashion Fetish/Fashion\ Fetish\ Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Fashion Fetish";
+  src: url("./Fashion Fetish/Fashion\ Fetish\ Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Fashion Fetish";
+  src: url("./Fashion Fetish/Fashion\ Fetish\ Heavy.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
