@@ -162,7 +162,26 @@ function fitAll(els) {
     el.style.fontSize = `${newFontSize}px`;
   }
 
-  for (const el of els) fit(el);
+  let groups = [];
+
+  for (const el of els) {
+    fit(el);
+    const group = el.getAttribute("data-fittext-group");
+    if (group && !groups.includes(group)) groups.push(group);
+  }
+
+  // Group elements by data-fittext-group
+  for (const group of groups) {
+    const groupElements = document.querySelectorAll(
+      `[data-fittext-group="${group}"]`
+    );
+    const minFontSize = Math.min(
+      ...Array.from(groupElements).map((el) =>
+        parseFontSize(getComputedStyle(el).fontSize)
+      )
+    );
+    for (const el of groupElements) el.style.fontSize = `${minFontSize}px`;
+  }
 }
 
 window.addEventListener("load", () => {
