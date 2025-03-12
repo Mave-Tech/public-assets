@@ -140,11 +140,38 @@ function fitAll(els) {
     const textDimensions = getTextDimensions(el, getComputedStyle(el));
 
     const widthRatio = containerWidth / textDimensions.width;
+
+    // This is a recursive function that expands the rules of a CSS rule.
+    // It is used to handle nested rules.
+    function expandRules(rule) {
+      if (rule.cssRules) {
+        return [
+          rule,
+          ...Array.from(rule.cssRules).map((childRule) => {
+            const parentSelector = rule.selectorText;
+            const expandedSelector = childRule.selectorText.replace(
+              /&/g,
+              parentSelector
+            );
+            const expandedRule = {
+              selectorText: expandedSelector,
+              style: childRule.style,
+              cssRules: childRule.cssRules,
+            };
+            return expandRules(expandedRule);
+          }),
+        ].flat(Infinity);
+      }
+      return [rule];
+    }
+
     const setFontSize = parseFontSize(
       Array.from(document.styleSheets)
         .filter((sheet) => !sheet.href) // Filter out remote stylesheets
         .map((sheet) => Array.from(sheet.cssRules))
         .flat()
+        .map((rule) => expandRules(rule))
+        .flat(Infinity)
         .filter((rule) => el.matches(rule.selectorText)) // Find CSS Rules that apply to the current element
         .map((rule) => rule.style.fontSize)
         .filter((fs) => fs)[0]
