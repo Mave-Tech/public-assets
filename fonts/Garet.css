@@ -1,19 +1,13 @@
 @font-face {
   font-family: "Garet";
-  src: url("./Garet/Garet-Book.woff2") format("woff2"),
-    url("./Garet/Garet-Book.woff") format("woff"),
-    url("./Garet/Garet-Book.otf") format("opentype"),
-    url("./Garet/Garet-Book.ttf") format("truetype");
-  font-weight: normal;
+  src: url("./Garet/Garet\ W05\ Bold.otf") format("opentype");
+  font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Garet";
-  src: url("./Garet/Garet-Heavy.woff2") format("woff2"),
-    url("./Garet/Garet-Heavy.woff") format("woff"),
-    url("./Garet/Garet-Heavy.otf") format("opentype"),
-    url("./Garet/Garet-Heavy.ttf") format("truetype");
-  font-weight: bold;
+  src: url("./Garet/Garet\ W05\ Extra\ Bold.otf") format("opentype");
+  font-weight: 800;
   font-style: normal;
 }
