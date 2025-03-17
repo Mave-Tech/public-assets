@@ -172,9 +172,10 @@ function fitAll(els) {
         .flat()
         .map((rule) => expandRules(rule))
         .flat(Infinity)
-        .filter((rule) => el.matches(rule.selectorText)) // Find CSS Rules that apply to the current element
+        .filter((rule) => rule.selectorText && el.matches(rule.selectorText)) // Find CSS Rules that apply to the current element
         .map((rule) => rule.style.fontSize)
-        .filter((fs) => fs)[0]
+        .filter((fs) => fs)
+        .at(-1)
     );
     const currentFontSize = parseFontSize(getComputedStyle(el).fontSize);
     const maxFontSize = parseFontSize(
@@ -186,12 +187,14 @@ function fitAll(els) {
     const newFontSize = Math.floor(
       Math.max(minFontSize, Math.min(currentFontSize * widthRatio, maxFontSize))
     );
+
     el.style.fontSize = `${newFontSize}px`;
   }
 
   let groups = [];
 
   for (const el of els) {
+    if (!el.innerText) continue;
     fit(el);
     const group = el.getAttribute("data-fittext-group");
     if (group && !groups.includes(group)) groups.push(group);
