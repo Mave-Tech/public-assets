@@ -3,4 +3,6 @@
   src: url("./theseasons.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
+  ascent-override: 90%;
+  descent-override: 10%;
 }
