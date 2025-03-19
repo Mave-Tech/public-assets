@@ -203,7 +203,7 @@ function fitAll(els) {
   // Group elements by data-fittext-group
   for (const group of groups) {
     const groupElements = document.querySelectorAll(
-      `[data-fittext-group="${group}"]`
+      `[data-fittext-group="${group}"]:not(:empty)`
     );
     const minFontSize = Math.min(
       ...Array.from(groupElements).map((el) =>
