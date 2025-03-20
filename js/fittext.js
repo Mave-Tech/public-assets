@@ -175,7 +175,7 @@ function fitAll(els) {
         .filter((rule) => rule.selectorText && el.matches(rule.selectorText)) // Find CSS Rules that apply to the current element
         .map((rule) => rule.style.fontSize)
         .filter((fs) => fs)
-        .at(-1)
+        .at(-1) || "1rem"
     );
     const currentFontSize = parseFontSize(getComputedStyle(el).fontSize);
     const maxFontSize = parseFontSize(
