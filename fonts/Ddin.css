@@ -1,0 +1,87 @@
+/* Regular */
+@font-face {
+    font-family: 'D-DIN';
+    src: url('Ddin/D-DIN.woff2') format('woff2'),
+    url('Ddin/D-DIN.woff') format('woff'),
+    url('Ddin/D-DIN.otf') format('opentype'),
+    url('Ddin/D-DIN.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Bold */
+@font-face {
+    font-family: 'D-DIN';
+    src: url('Ddin/D-DIN-Bold.woff2') format('woff2'),
+    url('Ddin/D-DIN-Bold.woff') format('woff'),
+    url('Ddin/D-DIN-Bold.otf') format('opentype'),
+    url('Ddin/D-DIN-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Italic */
+@font-face {
+    font-family: 'D-DIN';
+    src: url('Ddin/D-DIN-Italic.woff2') format('woff2'),
+    url('Ddin/D-DIN-Italic.woff') format('woff'),
+    url('Ddin/D-DIN-Italic.otf') format('opentype'),
+    url('Ddin/D-DIN-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Condensed Regular */
+@font-face {
+    font-family: 'D-DINCondensed';
+    src: url('Ddin/D-DINCondensed.woff2') format('woff2'),
+    url('Ddin/D-DINCondensed.woff') format('woff'),
+    url('Ddin/D-DINCondensed.otf') format('opentype'),
+    url('Ddin/D-DINCondensed.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Condensed Bold */
+@font-face {
+    font-family: 'D-DINCondensed';
+    src: url('Ddin/D-DINCondensed-Bold.woff2') format('woff2'),
+    url('Ddin/D-DINCondensed-Bold.woff') format('woff'),
+    url('Ddin/D-DINCondensed-Bold.otf') format('opentype'),
+    url('Ddin/D-DINCondensed-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Expanded Regular */
+@font-face {
+    font-family: 'D-DINExp';
+    src: url('Ddin/D-DINExp.woff2') format('woff2'),
+    url('Ddin/D-DINExp.woff') format('woff'),
+    url('Ddin/D-DINExp.otf') format('opentype'),
+    url('Ddin/D-DINExp.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Expanded Bold */
+@font-face {
+    font-family: 'D-DINExp';
+    src: url('Ddin/D-DINExp-Bold.woff2') format('woff2'),
+    url('Ddin/D-DINExp-Bold.woff') format('woff'),
+    url('Ddin/D-DINExp-Bold.otf') format('opentype'),
+    url('Ddin/D-DINExp-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Expanded Italic */
+@font-face {
+    font-family: 'D-DINExp';
+    src: url('Ddin/D-DINExp-Italic.woff2') format('woff2'),
+    url('Ddin/D-DINExp-Italic.woff') format('woff'),
+    url('Ddin/D-DINExp-Italic.otf') format('opentype'),
+    url('Ddin/D-DINExp-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
