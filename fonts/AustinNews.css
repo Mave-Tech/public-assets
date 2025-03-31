@@ -1,6 +1,20 @@
 @font-face {
+  font-family: "Austin News";
+  src: url("AustinNews/AustinNewsHeadline-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "Austin News Headline";
-  src: url("AustinNewsHeadline-Roman.otf") format("opentype");
+  src: url("AustinNews/AustinNewsHeadline-Roman.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
+}
+
+@font-face {
+  font-family: "Austin News Headline";
+  src: url("AustinNews/AustinNewsHeadline-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
 }
