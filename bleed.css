@@ -108,6 +108,8 @@
 
 /* If the element is absolutely positioned, we need to adjust the bleed */
 .bleed-absolute {
+  position: absolute;
+
   &::before {
     content: none;
   }
