@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Recife Text";
+  src: url("./RecifeText/RecifeText-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
