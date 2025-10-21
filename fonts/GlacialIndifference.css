@@ -4,3 +4,10 @@
 	font-weight: 400;
 	font-style: normal;
 }
+
+@font-face {
+	font-family: "Glacial-Indifference";
+	src: url("./GlacialIndifference/GlacialIndifference-Bold.otf") format("opentype");
+	font-weight: 700;
+	font-style: normal;
+}
