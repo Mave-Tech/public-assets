@@ -1,69 +1,79 @@
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-Light.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-Light.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-LightOblique.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-LightOblique.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-LightOblique.otf") format("opentype");
   font-weight: 300;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-Book.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-Book.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-Book.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-BookOblique.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-BookOblique.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-BookOblique.otf") format("opentype");
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-Medium.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-Medium.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-MediumOblique.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-MediumOblique.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-MediumOblique.otf") format("opentype");
   font-weight: 500;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-Heavy.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-Heavy.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-Heavy.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-HeavyOblique.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-HeavyOblique.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-HeavyOblique.otf") format("opentype");
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-Black.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-Black.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-Black.otf") format("opentype");
   font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Avenir";
-  src: url("./Avenir/AvenirLTStd-BlackOblique.otf") format("opentype");
+  src: url("./Avenir/AvenirLTStd-BlackOblique.woff2") format("woff2"),
+       url("./Avenir/AvenirLTStd-BlackOblique.otf") format("opentype");
   font-weight: 900;
   font-style: italic;
 }
