@@ -68,11 +68,13 @@ function getTextDimensions(element, styles) {
         ? window.getComputedStyle(node)
         : parentStyles;
 
+    // An element with no child nodes has no text to measure. Falling back to
+    // [node] here would make processNode recurse into itself forever.
     const children = node.hasChildNodes()
       ? Array.from(node.childNodes).filter(
           (child) => child.nodeType !== Node.COMMENT_NODE
         )
-      : [node];
+      : [];
 
     // Process each child node
     return children.reduce(
@@ -195,7 +197,13 @@ function fitAll(els) {
 
   for (const el of els) {
     if (!el.innerText) continue;
-    fit(el);
+    try {
+      fit(el);
+    } catch (err) {
+      // Never let a single element abort fitting for the rest of the page
+      console.error("fittext: could not fit element", el, err);
+      continue;
+    }
     const group = el.getAttribute("data-fittext-group");
     if (group && !groups.includes(group)) groups.push(group);
   }
