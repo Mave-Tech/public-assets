@@ -1,0 +1,121 @@
+name: Deploy to CDN
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cdn
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: cdn.maveai.co
+  CLOUDFRONT_DISTRIBUTION_ID: EZPGSQR8Z7W0J
+
+jobs:
+  deploy:
+    name: Minify, sync to S3, invalidate CloudFront
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.CDN_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CDN_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build dist (originals + generated .min siblings)
+        run: |
+          set -euo pipefail
+
+          rsync -a --exclude '.git' --exclude '.github' ./ dist/
+
+          # jsDelivr minified on the fly; here we generate the .min siblings
+          # ourselves so all existing .min URLs keep resolving.
+          # Pre-existing .min.* files (js/sync-address-fonts.min.js) are kept as-is.
+          npm install --no-save esbuild@0.24
+
+          find dist \( -name '*.css' -o -name '*.js' \) ! -name '*.min.css' ! -name '*.min.js' -print0 |
+            while IFS= read -r -d '' f; do
+              ext="${f##*.}"
+              out="${f%.*}.min.${ext}"
+              if [ ! -e "$out" ]; then
+                npx esbuild "$f" --minify --outfile="$out" --log-level=warning
+              fi
+            done
+
+          echo "Files in dist: $(find dist -type f | wc -l)"
+
+      - name: Sync to S3 with explicit content types
+        run: |
+          set -euo pipefail
+
+          # aws s3 sync guesses Content-Type from the runner's mime table and has
+          # stored woff2 as binary/octet-stream before (MAV-1019/MAV-1300 ORB
+          # breakage), so every served extension gets an explicit type.
+          sync_type () {
+            local pattern="$1" ctype="$2"
+            aws s3 sync dist "s3://${S3_BUCKET}" \
+              --exclude '*' --include "$pattern" \
+              --content-type "$ctype" \
+              --cache-control 'public, max-age=3600' \
+              --delete
+          }
+
+          sync_type '*.css'   'text/css; charset=utf-8'
+          sync_type '*.js'    'text/javascript; charset=utf-8'
+          sync_type '*.woff2' 'font/woff2'
+          sync_type '*.woff'  'font/woff'
+          sync_type '*.otf'   'font/otf'
+          sync_type '*.ttf'   'font/ttf'
+          sync_type '*.ttc'   'font/collection'
+          sync_type '*.svg'   'image/svg+xml'
+          sync_type '*.md'    'text/markdown; charset=utf-8'
+
+          # Everything not covered above (LICENSE, .gitignore, future additions),
+          # plus deletion of stray objects that match none of the patterns.
+          aws s3 sync dist "s3://${S3_BUCKET}" \
+            --exclude '*.css' --exclude '*.js' --exclude '*.woff2' --exclude '*.woff' \
+            --exclude '*.otf' --exclude '*.ttf' --exclude '*.ttc' --exclude '*.svg' --exclude '*.md' \
+            --cache-control 'public, max-age=3600' \
+            --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          set -euo pipefail
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" \
+            --paths '/*' \
+            --query 'Invalidation.Id' --output text)
+          echo "Invalidation ${INVALIDATION_ID} created, waiting..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" \
+            --id "${INVALIDATION_ID}"
+          echo "Live on https://cdn.maveai.co"
+
+      - name: Smoke check
+        run: |
+          set -euo pipefail
+          check () {
+            local path="$1" want_type="$2"
+            local out
+            out=$(curl -sfI "https://cdn.maveai.co/${path}")
+            echo "$out" | grep -qi "content-type: ${want_type}" ||
+              { echo "FAIL ${path}: wrong content-type"; echo "$out"; exit 1; }
+            echo "$out" | grep -qi "access-control-allow-origin: \*" ||
+              { echo "FAIL ${path}: missing ACAO"; echo "$out"; exit 1; }
+            echo "OK ${path}"
+          }
+          check "js/fittext.min.js" "text/javascript"
+          check "global.template.min.css" "text/css"
+          check "bleed.min.css" "text/css"
+          check "fonts/Avenir.min.css" "text/css"
+          check "fonts/Avenir/AvenirLTStd-Black.woff2" "font/woff2"
+          check "mavelogo.svg" "image/svg+xml"
