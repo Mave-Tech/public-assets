@@ -77,13 +77,15 @@ jobs:
           sync_type '*.ttf'   'font/ttf'
           sync_type '*.ttc'   'font/collection'
           sync_type '*.svg'   'image/svg+xml'
+          sync_type '*.png'   'image/png'
           sync_type '*.md'    'text/markdown; charset=utf-8'
 
           # Everything not covered above (LICENSE, .gitignore, future additions),
           # plus deletion of stray objects that match none of the patterns.
           aws s3 sync dist "s3://${S3_BUCKET}" \
             --exclude '*.css' --exclude '*.js' --exclude '*.woff2' --exclude '*.woff' \
-            --exclude '*.otf' --exclude '*.ttf' --exclude '*.ttc' --exclude '*.svg' --exclude '*.md' \
+            --exclude '*.otf' --exclude '*.ttf' --exclude '*.ttc' --exclude '*.svg' --exclude '*.png' \
+            --exclude '*.md' \
             --cache-control 'public, max-age=3600' \
             --delete
 
@@ -119,3 +121,5 @@ jobs:
           check "fonts/Avenir.min.css" "text/css"
           check "fonts/Avenir/AvenirLTStd-Black.woff2" "font/woff2"
           check "mavelogo.svg" "image/svg+xml"
+          check "legacy/psr-white-logo.svg" "image/svg+xml"
+          check "legacy/agent-headshot-placeholder.png" "image/png"
