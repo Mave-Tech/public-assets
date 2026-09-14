@@ -36,6 +36,11 @@ https://legacy.maveai.co/asset/<slug>.<ext>   ->  https://cdn.maveai.co/legacy/<
 https://dev.aws.maveai.co/asset/<slug>.<ext>  ->  https://cdn.maveai.co/legacy/<slug>.<ext>
 ```
 
+Two legacy slugs were byte-identical duplicates of another and are not mirrored:
+`psr-logo-black` (a copy of `psr-black-logo-vxlx86` that had been uploaded under
+the wrong brokerage) and `forest-hill-yorkville-white-logo` (a copy of
+`forest-hill-yorkville-white-and-red-logo`). Every reference now points at the
+survivor, so those two are the only slugs a host swap will not resolve.
+
 Copying here does not retire anything: the legacy `/asset/` endpoint stays live
-until every consumer has moved, including template rows in the mave-api database
-and already-rendered posts.
+until every consumer has moved.
