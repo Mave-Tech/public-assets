@@ -16,7 +16,10 @@ Example:
 
 Brokerage logos, icons and placeholders that the marketing templates used to pull
 from the legacy Django app at `legacy.maveai.co/asset/<slug>.<ext>` (and, for a
-handful, `dev.aws.maveai.co/asset/<slug>.<ext>`). Each of those requests hit
+handful, `dev.aws.maveai.co/asset/<slug>.<ext>`). A third set pointed at
+`app.maveai.co/asset/<slug>.<ext>`, which never served assets at all: that host
+answers any path with the web-portal SPA's `index.html`, so those references had
+been rendering as broken images. Each of the real requests hit
 `short_urls.views.asset`, which looked up a `MarketingAsset` row by slug and
 streamed the file back out of `s3://mave-marketing-asset-bucket`. Serving a static
 logo therefore depended on the legacy app and its database being up.

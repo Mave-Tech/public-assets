@@ -78,6 +78,8 @@ jobs:
           sync_type '*.ttc'   'font/collection'
           sync_type '*.svg'   'image/svg+xml'
           sync_type '*.png'   'image/png'
+          sync_type '*.jpg'   'image/jpeg'
+          sync_type '*.jpeg'  'image/jpeg'
           sync_type '*.md'    'text/markdown; charset=utf-8'
 
           # Everything not covered above (LICENSE, .gitignore, future additions),
@@ -85,7 +87,7 @@ jobs:
           aws s3 sync dist "s3://${S3_BUCKET}" \
             --exclude '*.css' --exclude '*.js' --exclude '*.woff2' --exclude '*.woff' \
             --exclude '*.otf' --exclude '*.ttf' --exclude '*.ttc' --exclude '*.svg' --exclude '*.png' \
-            --exclude '*.md' \
+            --exclude '*.jpg' --exclude '*.jpeg' --exclude '*.md' \
             --cache-control 'public, max-age=3600' \
             --delete
 
