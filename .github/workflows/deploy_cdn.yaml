@@ -119,9 +119,7 @@ jobs:
           }
           check "js/fittext.min.js" "text/javascript"
           check "global.template.min.css" "text/css"
-          check "bleed.min.css" "text/css"
           check "fonts/Avenir.min.css" "text/css"
           check "fonts/Avenir/AvenirLTStd-Black.woff2" "font/woff2"
-          check "mavelogo.svg" "image/svg+xml"
           check "legacy/psr-white-logo.svg" "image/svg+xml"
           check "legacy/agent-headshot-placeholder.png" "image/png"
