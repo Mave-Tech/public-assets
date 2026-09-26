@@ -267,12 +267,18 @@ jobs:
           serves "legacy/psr-white-logo.svg" "image/svg+xml"
           serves "legacy/agent-headshot-placeholder.png" "image/png"
 
-          # Repo bookkeeping must not be on the internet.
+          # Repo bookkeeping must not be on the internet. This is every path
+          # the ticket listed as live on 15 Sep, so the acceptance is checked
+          # rather than assumed.
           gone "README.md"
           gone "LICENSE"
           gone ".gitignore"
           gone ".idea/vcs.xml"
+          gone ".idea/misc.xml"
+          gone ".idea/modules.xml"
           gone ".idea/public-assets.iml"
+          gone ".idea/inspectionProfiles/Project_Default.xml"
+          gone ".idea/.gitignore"
 
       - name: Confirm the app-owned prefixes survived
         if: ${{ !inputs.dry_run }}
