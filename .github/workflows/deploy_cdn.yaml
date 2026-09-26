@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Show what would be uploaded and deleted, change nothing"
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: deploy-cdn
@@ -13,6 +19,22 @@ env:
   AWS_REGION: us-east-1
   S3_BUCKET: cdn.maveai.co
   CLOUDFRONT_DISTRIBUTION_ID: EZPGSQR8Z7W0J
+
+  # The only extensions this repo publishes. An allow list, because the deploy
+  # serves whatever reaches dist/: under the old deny list, committing a file was
+  # the same as publishing it, which is how .idea/ ended up on the CDN.
+  ASSET_EXTENSIONS: "css js woff2 woff otf ttf ttc svg png jpg jpeg"
+
+  # Prefixes in the bucket that belong to the application, not to this repo.
+  # The app writes them at runtime and they are not committed here, so a mirror
+  # sync sees them as stray and deletes them. perm/ holds cached fonts written by
+  # mave-api (MAV-1447) and home-reference-pages/ holds rendered page images.
+  # Nothing here may be uploaded, deleted or otherwise touched by this workflow.
+  APP_OWNED_PREFIXES: "perm/ home-reference-pages/"
+
+  # A prune that suddenly wants to remove hundreds of objects means something is
+  # wrong with the filters, not with the bucket. Stop and make a human look.
+  MAX_PRUNE: "50"
 
 jobs:
   deploy:
@@ -31,11 +53,39 @@ jobs:
           aws-secret-access-key: ${{ secrets.CDN_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build dist (originals + generated .min siblings)
+      - name: Refuse to publish over an app-owned prefix
+        # If one of these ever appears in the repo, the exclusions below would
+        # silently stop publishing it, and the repo copy and the app copy would
+        # drift apart with nothing to say so. Better to fail the build.
+        run: |
+          set -euo pipefail
+          FAILED=0
+          for PREFIX in ${APP_OWNED_PREFIXES}; do
+            if [ -e "${PREFIX%/}" ]; then
+              echo "::error::${PREFIX} exists in this repo, but that prefix belongs to the application. This workflow never uploads or deletes there, so the committed copy would never reach the CDN. Rename it, or move it out of the repo."
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+      - name: Build dist from the allow list
         run: |
           set -euo pipefail
 
-          rsync -a --exclude '.git' --exclude '.github' ./ dist/
+          # An allow list, not a deny list: a file reaches the internet only if
+          # its extension is named here. Under the old deny list, committing a
+          # file was the same as publishing it, which is how .idea/ got served.
+          FIND_ARGS=()
+          for EXT in ${ASSET_EXTENSIONS}; do
+            FIND_ARGS+=(-name "*.${EXT}" -o)
+          done
+          unset 'FIND_ARGS[${#FIND_ARGS[@]}-1]'   # drop the trailing -o
+
+          mkdir -p dist
+          find . -type f \
+            -not -path './.git/*' -not -path './.github/*' -not -path './dist/*' \
+            \( "${FIND_ARGS[@]}" \) -print0 \
+            | rsync -a --files-from=- --from0 ./ dist/
 
           # jsDelivr minified on the fly; here we generate the .min siblings
           # ourselves so all existing .min URLs keep resolving.
@@ -51,19 +101,38 @@ jobs:
               fi
             done
 
-          echo "Files in dist: $(find dist -type f | wc -l)"
+          echo "Publishing $(find dist -type f | wc -l) file(s)"
+          echo "Not published (no asset extension):"
+          comm -23 \
+            <(find . -type f -not -path './.git/*' -not -path './.github/*' -not -path './dist/*' \
+                | sed 's|^\./||' | sort) \
+            <(find dist -type f | sed 's|^dist/||' | sort) \
+            | sed 's/^/  /'
 
       - name: Sync to S3 with explicit content types
         run: |
           set -euo pipefail
 
+          DRY=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then DRY="--dryrun"; fi
+
+          # Every filter that admits an app-owned prefix has to exclude it again
+          # afterwards: the last matching filter wins, and --delete only touches
+          # keys the filters admit. Without this, `--include '*.woff2'` alone
+          # deletes every cached font under perm/, which is 2741 objects today.
+          EXCLUDES=()
+          for PREFIX in ${APP_OWNED_PREFIXES}; do
+            EXCLUDES+=(--exclude "${PREFIX}*")
+          done
+
           # aws s3 sync guesses Content-Type from the runner's mime table and has
           # stored woff2 as binary/octet-stream before (MAV-1019/MAV-1300 ORB
-          # breakage), so every served extension gets an explicit type.
+          # breakage), so every served extension gets an explicit type. There is
+          # no catch-all pass any more: a file with no type here is not published.
           sync_type () {
             local pattern="$1" ctype="$2"
-            aws s3 sync dist "s3://${S3_BUCKET}" \
-              --exclude '*' --include "$pattern" \
+            aws s3 sync dist "s3://${S3_BUCKET}" ${DRY} \
+              --exclude '*' --include "$pattern" "${EXCLUDES[@]}" \
               --content-type "$ctype" \
               --cache-control 'public, max-age=3600' \
               --delete
@@ -80,18 +149,80 @@ jobs:
           sync_type '*.png'   'image/png'
           sync_type '*.jpg'   'image/jpeg'
           sync_type '*.jpeg'  'image/jpeg'
-          sync_type '*.md'    'text/markdown; charset=utf-8'
 
-          # Everything not covered above (LICENSE, .gitignore, future additions),
-          # plus deletion of stray objects that match none of the patterns.
-          aws s3 sync dist "s3://${S3_BUCKET}" \
-            --exclude '*.css' --exclude '*.js' --exclude '*.woff2' --exclude '*.woff' \
-            --exclude '*.otf' --exclude '*.ttf' --exclude '*.ttc' --exclude '*.svg' --exclude '*.png' \
-            --exclude '*.jpg' --exclude '*.jpeg' --exclude '*.md' \
-            --cache-control 'public, max-age=3600' \
-            --delete
+      - name: Prune objects this repo no longer publishes
+        # The syncs above only delete within their own --include, so anything
+        # with an extension they do not cover survives forever: that is why
+        # .idea/, README.md, LICENSE and .gitignore are still served. This pass
+        # removes what the repo does not publish, and never looks inside an
+        # app-owned prefix.
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+
+          bucket = os.environ["S3_BUCKET"]
+          owned = tuple(p for p in os.environ["APP_OWNED_PREFIXES"].split() if p)
+          dry = os.environ.get("DRY_RUN") == "true"
+          limit = int(os.environ["MAX_PRUNE"])
+
+          published = set()
+          for root, _, files in os.walk("dist"):
+              for name in files:
+                  published.add(os.path.relpath(os.path.join(root, name), "dist"))
+
+          keys, token = [], None
+          while True:
+              cmd = ["aws", "s3api", "list-objects-v2", "--bucket", bucket,
+                     "--max-items", "1000"]
+              if token:
+                  cmd += ["--starting-token", token]
+              out = json.loads(subprocess.run(cmd, capture_output=True, text=True,
+                                              check=True).stdout or "{}")
+              keys += [o["Key"] for o in out.get("Contents", [])]
+              token = out.get("NextToken")
+              if not token:
+                  break
+
+          stale = [
+              k for k in keys
+              if not k.startswith(owned) and k not in published and not k.endswith("/")
+          ]
+
+          if not stale:
+              print("Nothing to prune")
+              sys.exit(0)
+
+          print(f"{len(stale)} object(s) the repo no longer publishes:")
+          for k in sorted(stale):
+              print(f"  {k}")
+
+          if len(stale) > limit:
+              sys.exit(
+                  f"error: refusing to delete {len(stale)} objects in one run "
+                  f"(limit {limit}). That many usually means a filter is wrong "
+                  f"rather than the bucket being stale. Check the list above, "
+                  f"then raise MAX_PRUNE deliberately if it really is correct."
+              )
+
+          if dry:
+              print("Dry run, nothing deleted")
+              sys.exit(0)
+
+          for i in range(0, len(stale), 1000):
+              batch = {"Objects": [{"Key": k} for k in stale[i:i + 1000]], "Quiet": True}
+              subprocess.run(
+                  ["aws", "s3api", "delete-objects", "--bucket", bucket,
+                   "--delete", json.dumps(batch)],
+                  check=True, capture_output=True, text=True,
+              )
+          print(f"Deleted {len(stale)} object(s)")
+          PY
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
 
       - name: Invalidate CloudFront
+        if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
           INVALIDATION_ID=$(aws cloudfront create-invalidation \
@@ -105,21 +236,53 @@ jobs:
           echo "Live on https://cdn.maveai.co"
 
       - name: Smoke check
+        if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
-          check () {
+
+          serves () {
             local path="$1" want_type="$2"
             local out
-            out=$(curl -sfI "https://cdn.maveai.co/${path}")
+            out=$(curl -sfI "https://cdn.maveai.co/${path}") ||
+              { echo "FAIL ${path}: not served"; exit 1; }
             echo "$out" | grep -qi "content-type: ${want_type}" ||
               { echo "FAIL ${path}: wrong content-type"; echo "$out"; exit 1; }
             echo "$out" | grep -qi "access-control-allow-origin: \*" ||
               { echo "FAIL ${path}: missing ACAO"; echo "$out"; exit 1; }
-            echo "OK ${path}"
+            echo "OK serves ${path}"
           }
-          check "js/fittext.min.js" "text/javascript"
-          check "global.template.min.css" "text/css"
-          check "fonts/Avenir.min.css" "text/css"
-          check "fonts/Avenir/AvenirLTStd-Black.woff2" "font/woff2"
-          check "legacy/psr-white-logo.svg" "image/svg+xml"
-          check "legacy/agent-headshot-placeholder.png" "image/png"
+
+          gone () {
+            local path="$1" code
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://cdn.maveai.co/${path}")
+            [ "$code" = "404" ] ||
+              { echo "FAIL ${path}: expected 404, got ${code}"; exit 1; }
+            echo "OK 404 ${path}"
+          }
+
+          serves "js/fittext.min.js" "text/javascript"
+          serves "global.template.min.css" "text/css"
+          serves "fonts/Avenir.min.css" "text/css"
+          serves "fonts/Avenir/AvenirLTStd-Black.woff2" "font/woff2"
+          serves "legacy/psr-white-logo.svg" "image/svg+xml"
+          serves "legacy/agent-headshot-placeholder.png" "image/png"
+
+          # Repo bookkeeping must not be on the internet.
+          gone "README.md"
+          gone "LICENSE"
+          gone ".gitignore"
+          gone ".idea/vcs.xml"
+          gone ".idea/public-assets.iml"
+
+      - name: Confirm the app-owned prefixes survived
+        if: ${{ !inputs.dry_run }}
+        # The whole point of this deploy is that it no longer deletes them, so it
+        # says so out loud rather than leaving it to be discovered later.
+        run: |
+          set -euo pipefail
+          for PREFIX in ${APP_OWNED_PREFIXES}; do
+            COUNT=$(aws s3api list-objects-v2 --bucket "${S3_BUCKET}" \
+              --prefix "${PREFIX}" --query 'length(Contents)' --output text 2>/dev/null || echo 0)
+            [ "${COUNT}" = "None" ] && COUNT=0
+            echo "${PREFIX} holds ${COUNT} object(s), untouched by this deploy"
+          done
