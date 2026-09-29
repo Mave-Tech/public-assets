@@ -1,6 +1,9 @@
 /**
  * This is a custom javascript file that is used to fit the text to the container.
  * To use it, add the class "fittext" to the element you want to fit.
+ *
+ * By default the text is sized to fit on one line. Add data-fittext-mode="word"
+ * to size it so its widest word fits instead, and let it wrap between words.
  */
 
 function parseFontSize(fontSize) {
@@ -135,13 +138,32 @@ function getTextDimensions(element, styles) {
   return nodeDimensions;
 }
 
+// The width of the element's widest word, measured in the element's own font.
+function getWidestWordWidth(element, styles) {
+  const canvas =
+    getTextDimensions.canvas ||
+    (getTextDimensions.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+
+  const words = transformText(element.textContent, styles)
+    .split(/\s+/)
+    .filter(Boolean);
+  return Math.max(
+    0,
+    ...words.map((word) => measureText(context, word, styles).width)
+  );
+}
+
 function fitAll(els) {
   function fit(el) {
     const containerWidth = el.clientWidth;
     const containerHeight = el.clientHeight;
-    const textDimensions = getTextDimensions(el, getComputedStyle(el));
+    const textWidth =
+      el.getAttribute("data-fittext-mode") === "word"
+        ? getWidestWordWidth(el, getComputedStyle(el))
+        : getTextDimensions(el, getComputedStyle(el)).width;
 
-    const widthRatio = containerWidth / textDimensions.width;
+    const widthRatio = containerWidth / textWidth;
 
     // This is a recursive function that expands the rules of a CSS rule.
     // It is used to handle nested rules.
