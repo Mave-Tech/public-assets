@@ -48,11 +48,15 @@ function measureText(context, text, styles) {
   };
 }
 
+// One canvas, created on first use, measures all the text.
+function getCanvas() {
+  return (
+    getCanvas.canvas || (getCanvas.canvas = document.createElement("canvas"))
+  );
+}
+
 function getTextDimensions(element, styles) {
-  // re-use canvas object for better performance
-  const canvas =
-    getTextDimensions.canvas ||
-    (getTextDimensions.canvas = document.createElement("canvas"));
+  const canvas = getCanvas();
 
   // If canvas isn't on DOM yet, append it
   if (window.DEBUG_DRAW && !canvas.parentNode) {
@@ -139,15 +143,12 @@ function getTextDimensions(element, styles) {
 }
 
 // The width of the element's widest word, measured in the element's own font.
+// innerText already applies text-transform and turns each <br> into a line
+// break. Splitting only at spaces and line breaks, where CSS wraps, keeps a
+// no-break space inside its word.
 function getWidestWordWidth(element, styles) {
-  const canvas =
-    getTextDimensions.canvas ||
-    (getTextDimensions.canvas = document.createElement("canvas"));
-  const context = canvas.getContext("2d");
-
-  const words = transformText(element.textContent, styles)
-    .split(/\s+/)
-    .filter(Boolean);
+  const context = getCanvas().getContext("2d");
+  const words = element.innerText.split(/[ \n]+/).filter(Boolean);
   return Math.max(
     0,
     ...words.map((word) => measureText(context, word, styles).width)
