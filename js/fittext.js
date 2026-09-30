@@ -1,6 +1,9 @@
 /**
  * This is a custom javascript file that is used to fit the text to the container.
  * To use it, add the class "fittext" to the element you want to fit.
+ *
+ * By default the text is sized to fit on one line. Add data-fittext-mode="word"
+ * to size it so its widest word fits instead, and let it wrap between words.
  */
 
 function parseFontSize(fontSize) {
@@ -45,11 +48,15 @@ function measureText(context, text, styles) {
   };
 }
 
+// One canvas, created on first use, measures all the text.
+function getCanvas() {
+  return (
+    getCanvas.canvas || (getCanvas.canvas = document.createElement("canvas"))
+  );
+}
+
 function getTextDimensions(element, styles) {
-  // re-use canvas object for better performance
-  const canvas =
-    getTextDimensions.canvas ||
-    (getTextDimensions.canvas = document.createElement("canvas"));
+  const canvas = getCanvas();
 
   // If canvas isn't on DOM yet, append it
   if (window.DEBUG_DRAW && !canvas.parentNode) {
@@ -135,13 +142,29 @@ function getTextDimensions(element, styles) {
   return nodeDimensions;
 }
 
+// The width of the element's widest word, measured in the element's own font.
+// innerText already applies text-transform and turns each <br> into a line
+// break. Splitting only at spaces and line breaks, where CSS wraps, keeps a
+// no-break space inside its word.
+function getWidestWordWidth(element, styles) {
+  const context = getCanvas().getContext("2d");
+  const words = element.innerText.split(/[ \n]+/).filter(Boolean);
+  return Math.max(
+    0,
+    ...words.map((word) => measureText(context, word, styles).width)
+  );
+}
+
 function fitAll(els) {
   function fit(el) {
     const containerWidth = el.clientWidth;
     const containerHeight = el.clientHeight;
-    const textDimensions = getTextDimensions(el, getComputedStyle(el));
+    const textWidth =
+      el.getAttribute("data-fittext-mode") === "word"
+        ? getWidestWordWidth(el, getComputedStyle(el))
+        : getTextDimensions(el, getComputedStyle(el)).width;
 
-    const widthRatio = containerWidth / textDimensions.width;
+    const widthRatio = containerWidth / textWidth;
 
     // This is a recursive function that expands the rules of a CSS rule.
     // It is used to handle nested rules.
