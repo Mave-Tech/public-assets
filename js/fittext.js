@@ -48,6 +48,23 @@ function measureText(context, text, styles) {
   };
 }
 
+// A display:none element draws nothing, but its textContent is still there:
+// gen-engine hides an unfilled slot with display:none and leaves its
+// {{TOKEN}} inside, so measuring it would fit the line to text nobody sees.
+function isRendered(node) {
+  return (
+    node.nodeType !== Node.ELEMENT_NODE ||
+    window.getComputedStyle(node).display !== "none"
+  );
+}
+
+// The text a node actually draws, ignoring any display:none element in it.
+function renderedText(node) {
+  if (!node || !isRendered(node)) return "";
+  if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+  return Array.from(node.childNodes).map(renderedText).join("");
+}
+
 // One canvas, created on first use, measures all the text.
 function getCanvas() {
   return (
@@ -79,7 +96,7 @@ function getTextDimensions(element, styles) {
     // [node] here would make processNode recurse into itself forever.
     const children = node.hasChildNodes()
       ? Array.from(node.childNodes).filter(
-          (child) => child.nodeType !== Node.COMMENT_NODE
+          (child) => child.nodeType !== Node.COMMENT_NODE && isRendered(child)
         )
       : [];
 
@@ -95,8 +112,8 @@ function getTextDimensions(element, styles) {
           if (
             (child.nextSibling ||
               (child.parentNode !== element && child.parentNode.nextSibling)) &&
-            (child.nextSibling?.textContent.trim() ||
-              child.parentNode.nextSibling?.textContent.trim())
+            (renderedText(child.nextSibling).trim() ||
+              renderedText(child.parentNode.nextSibling).trim())
           ) {
             processedText += " ";
           }
@@ -218,8 +235,12 @@ function fitAll(els) {
 
   let groups = [];
 
+  // An element that is not laid out (display:none on it or an ancestor) has no
+  // box to fit, and would only drag its group down to --min-font-size.
+  const isLaidOut = (el) => el.getClientRects().length > 0;
+
   for (const el of els) {
-    if (!el.innerText) continue;
+    if (!isLaidOut(el) || !el.innerText) continue;
     try {
       fit(el);
     } catch (err) {
@@ -233,9 +254,9 @@ function fitAll(els) {
 
   // Group elements by data-fittext-group
   for (const group of groups) {
-    const groupElements = document.querySelectorAll(
-      `[data-fittext-group="${group}"]:not(:empty)`
-    );
+    const groupElements = Array.from(
+      document.querySelectorAll(`[data-fittext-group="${group}"]:not(:empty)`)
+    ).filter(isLaidOut);
     const minFontSize = Math.min(
       ...Array.from(groupElements).map((el) =>
         parseFontSize(getComputedStyle(el).fontSize)
