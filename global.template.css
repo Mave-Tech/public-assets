@@ -55,6 +55,14 @@
     width: 11in;
     height: 8.5in;
   }
+  /* Print pages set type in px at 300 DPI, about four times its size on paper.
+     Chrome's automatic optical sizing reads that as a display size and picks a
+     variable font's hairline display cut, which vanishes in print (MAV-1664).
+     Keep the font's default optical size, the cut the PDF renderer prints. */
+  .page,
+  .page * {
+    font-optical-sizing: none;
+  }
 
   /* Image Types */
   .img {
