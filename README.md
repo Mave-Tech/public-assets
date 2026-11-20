@@ -47,3 +47,11 @@ survivor, so those two are the only slugs a host swap will not resolve.
 
 Copying here does not retire anything: the legacy `/asset/` endpoint stays live
 until every consumer has moved.
+
+## `mock-listings/`
+
+Listing photos for the demo (mock) agents in mave-api, at
+`mock-listings/<area>/<real MLS number>/<NN>.jpg`, where `NN` is the photo's position in the
+MLS listing. `mock-listings/miami/` holds the `MIAMI` agent's photos (MAV-1694), already cleaned
+of the Miami MLS watermark. mave-api's mock fixture links them by their
+`https://cdn.maveai.co/mock-listings/...` URL, so removing or renaming one breaks that fixture.
